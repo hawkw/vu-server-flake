@@ -86,7 +86,7 @@
 
             serviceConfig = {
               Restart = "on-failure";
-              User = "vu-server";
+              # User = "vu-server";
               RuntimeDirectory = "vu-server";
               RuntimeDirectoryMode = "0755";
               StateDirectory = "vu-server";

@@ -113,15 +113,13 @@
         };
 
         config = mkIf cfg.enable {
-          environment.etc.vu-server."config.yaml" = {
-            text = builtins.toJSON
-              {
-                server = cfg.server;
-                hardware = {
-                  port = null;
-                };
+          environment.etc."vu-server/config.yaml".source = builtins.toJSON
+            {
+              server = cfg.server;
+              hardware = {
+                port = null;
               };
-          };
+            };
 
           systemd.services."VU-Server" = {
             wantedBy = [ "multi-user.target" ];

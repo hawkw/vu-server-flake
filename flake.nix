@@ -79,7 +79,7 @@
               cd "$STATE_DIRECTORY"
               cp --recursive \
                 --no-preserve=mode \
-                --no-clobber \
+                --update=older \
                 ${pkg.vu-server}/bin/* .
               ${pkg.python}/bin/python server.py
             '';

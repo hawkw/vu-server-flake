@@ -72,25 +72,27 @@
         };
 
         config = mkIf cfg.enable {
-          wantedBy = [ "multi-user.target" ];
-          script = ''
-            set -x
-            cp --recursive \
-              --no-preserve=mode \
-              --t . / \
-              ${pkg.vu-server}/bin/*
-            ${pkg.python}/bin/python "$tmp"/server.py
-          '';
+          systemd.services."VU-Server" = {
+            wantedBy = [ "multi-user.target" ];
+            script = ''
+              set -x
+              cp --recursive \
+                --no-preserve=mode \
+                --t . / \
+                ${pkg.vu-server}/bin/*
+              ${pkg.python}/bin/python "$tmp"/server.py
+            '';
 
-          serviceConfig = {
-            Restart = "on-failure";
-            DynamicUser = "yes";
-            RuntimeDirectory = "vu-server";
-            RuntimeDirectoryMode = "0755";
-            StateDirectory = "vu-server";
-            StateDirectoryMode = "0700";
-            CacheDirectory = "vu-server";
-            CacheDirectoryMode = "0750";
+            serviceConfig = {
+              Restart = "on-failure";
+              DynamicUser = "yes";
+              RuntimeDirectory = "vu-server";
+              RuntimeDirectoryMode = "0755";
+              StateDirectory = "vu-server";
+              StateDirectoryMode = "0700";
+              CacheDirectory = "vu-server";
+              CacheDirectoryMode = "0750";
+            };
           };
         };
       };

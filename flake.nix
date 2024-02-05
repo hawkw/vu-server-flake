@@ -127,11 +127,14 @@
             description = "VU Dials server application";
             script = ''
               set -x
-              cd "$STATE_DIRECTORY"
+              touch "$STATE_DIRECTORY"/vudials.db
+              cd "$RUNTIME_DIRECTORY"
               cp --recursive \
                 --no-preserve=mode \
+                --symbolic-link \
                 ${pkg.vu-server}/bin/* .
-              ln -fs etc/vu-server/config.yaml ./config.yaml
+              ln -s "$STATE_DIRECTORY"/vudials.db .
+              ln -s /etc/vu-server/config.yaml .
               ${pkg.python}/bin/python server.py
             '';
 

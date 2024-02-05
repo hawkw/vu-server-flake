@@ -53,10 +53,15 @@
               ${python}/bin/python "$tmp"/server.py
             '';
           };
-        service = with pkgs.lib; let cfg = config.services.vu-server; in {
+        nixosModule = { config, lib, pkgs, ... }: with lib; let
+          cfg = config.services.vu-server;
+          pkg = self.${system}.packages.vu-server;
+        in
+        {
           options.services.vu-server = {
             enable = mkEnableOption "VU-Server systemd service";
           };
+
           config = mkIf cfg.enable {
             wantedBy = [ "multi-user.target" ];
             script = ''
@@ -64,7 +69,7 @@
               cp --recursive \
                 --no-preserve=mode \
                 --t . / \
-                ${pythonPkg}/bin/*
+                ${pkg}/bin/*
               ${python}/bin/python "$tmp"/server.py
             '';
 
@@ -85,19 +90,14 @@
       {
         packages =
           {
-            default = pythonPkg;
+            default = self.packages.${system}.vu-server;
             vu-server = pythonPkg;
             runner = runScript;
           };
-        nixosModules = {
-          vu-server = service;
-          default = service;
-        };
-        apps = {
-          default = {
-            type = "app";
-            program = "${self.packages.${system}.runner}/bin/vu-server-runner";
-          };
+        nixosModules.default = nixosModule;
+        apps.default = {
+          type = "app";
+          program = "${self.packages.${system}.runner}/bin/vu-server-runner";
         };
       });
 }

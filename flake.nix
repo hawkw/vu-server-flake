@@ -72,6 +72,7 @@
             {
               description = "Configuration for the VU-Server HTTP server.";
               type = with types; submodule {
+                default = { };
                 options = {
                   hostname = mkOption {
                     type = str;

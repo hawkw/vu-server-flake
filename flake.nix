@@ -15,12 +15,11 @@
       name = "VU-Server";
       mkPackage = { pkgs }:
         let
-
           src = pkgs.fetchFromGitHub {
             owner = "SasaKaranovic";
             repo = name;
             inherit rev;
-            sha256 = "sha256-wAg7iqArgX38VZnDRoY6XCSWL0D8iVrXvDjdyyo+ADVw=";
+            sha256 = "wAg7iqArgX38VZDRoY6XCSWL0D8iVrXvDjdyyo+ADVw=";
           };
           python = pkgs.python3.withPackages
             (pythonPkgs: with pythonPkgs; [

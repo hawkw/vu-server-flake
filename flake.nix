@@ -114,7 +114,7 @@
         };
 
         config = mkIf cfg.enable {
-          environment.etc."vu-server/config.yaml".source = builtins.toJSON
+          environment.etc."vu-server/config.yaml".text = builtins.toJSON
             {
               server = cfg.server;
               hardware = {
@@ -131,6 +131,7 @@
               cp --recursive \
                 --no-preserve=mode \
                 ${pkg.vu-server}/bin/* .
+              ln -fs etc/vu-server/config.yaml ./config.yaml
               ${pkg.python}/bin/python server.py
             '';
 

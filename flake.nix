@@ -68,9 +68,61 @@
       {
         options.services.vu-server = {
           enable = mkEnableOption "VU-Server systemd service";
+          server = mkOption
+            {
+              description = "Configuration for the VU-Server HTTP server.";
+              type = with types; submodule {
+                options = {
+                  hostname = mkOption {
+                    type = str;
+                    default = "localhost";
+                    example = "localhost";
+                    description = "The server's hostname. Probably this should be localhost.";
+                  };
+                  port = mkOption
+                    {
+                      type = port;
+                      default = 5340;
+                      example = 5340;
+                    };
+                  communication_timeout = mkOption
+                    {
+                      type = int;
+                      default = 5000;
+                      example = 5000;
+                      description = "The timeout for communication with the VU dials, in milliseconds.";
+                    };
+                  dial_update_period = mkOption
+                    {
+                      type = int;
+                      default = 200;
+                      example = 200;
+                      description = "The period between dial updates, in milliseconds.";
+                    };
+                  master_key = mkOption
+                    {
+                      type = str;
+                      default = "cTpAWYuRpA2zx75Yh961Cg";
+                      example = "cTpAWYuRpA2zx75Yh961Cg";
+                      description = "The master API key";
+                    };
+                };
+              };
+            };
+
         };
 
         config = mkIf cfg.enable {
+          environment.etc.vu-server."config.yaml" = {
+            text = builtins.toJSON
+              {
+                server = cfg.server;
+                hardware = {
+                  port = null;
+                };
+              };
+          };
+
           systemd.services."VU-Server" = {
             wantedBy = [ "multi-user.target" ];
             description = "VU Dials server application";

@@ -131,7 +131,7 @@
               cd "$RUNTIME_DIRECTORY"
               cp --recursive \
                 --no-preserve=mode \
-                --link \
+                --update=oldest \
                 ${pkg.vu-server}/bin/* .
               ln --symbolic --force "$STATE_DIRECTORY"/vudials.db .
               ln --symbolic --force /etc/vu-server/config.yaml .

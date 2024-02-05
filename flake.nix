@@ -51,7 +51,7 @@
                 set -x
                 cp --recursive \
                   --no-preserve=mode \
-                  --t "$tmp"/ \
+                  --target-directory="$tmp"/ \
                   ${serverPkg}/bin/*
                   python "$tmp"/server.py
               '';
@@ -76,11 +76,12 @@
             wantedBy = [ "multi-user.target" ];
             script = ''
               set -x
+              cd "$STATE_DIRECTORY"
               cp --recursive \
                 --no-preserve=mode \
-                --t "$STATE_DIRECTORY" / \
-                ${pkg.vu-server}/bin/*
-              ${pkg.python}/bin/python "$STATE_DIRECTORY"/server.py
+                --no-clobber \
+                "${pkg.vu-server}/bin" .
+              ${pkg.python}/bin/python server.py
             '';
 
             serviceConfig = {

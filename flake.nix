@@ -11,7 +11,7 @@
         nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ]
           (system: function nixpkgs.legacyPackages.${system});
 
-      rev = "be886696affec833859fea4b44a560539cd52519";
+      rev = "ee237b6d6842b43d927727743737e846b1415b53";
       name = "VU-Server";
       mkPackage = { pkgs }:
         let
@@ -20,7 +20,7 @@
             owner = "SasaKaranovic";
             repo = name;
             inherit rev;
-            sha256 = "sha256-+CgGU25xM6/zse0ctaE3gxM7duUAKj9v0kJ1k5+zwrc=";
+            sha256 = "sha256-wAg7iqArgX38VZnDRoY6XCSWL0D8iVrXvDjdyyo+ADVw=";
           };
           python = pkgs.python3.withPackages
             (pythonPkgs: with pythonPkgs; [
@@ -74,6 +74,7 @@
         config = mkIf cfg.enable {
           systemd.services."VU-Server" = {
             wantedBy = [ "multi-user.target" ];
+            description = "VU Dials server application";
             script = ''
               set -x
               cd "$STATE_DIRECTORY"
@@ -86,7 +87,7 @@
 
             serviceConfig = {
               Restart = "on-failure";
-              DynamicUser = "yes";
+              User = "vu-server";
               RuntimeDirectory = "vu-server";
               RuntimeDirectoryMode = "0755";
               StateDirectory = "vu-server";
@@ -95,6 +96,10 @@
               CacheDirectoryMode = "0750";
             };
           };
+
+          services.udev.extraRules = ''
+            KERNEL=="ttyUSB0", MODE="0666"
+          '';
         };
       };
     in

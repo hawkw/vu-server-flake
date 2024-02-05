@@ -78,7 +78,7 @@
             cp --recursive \
               --no-preserve=mode \
               --t . / \
-              ${pkg.pkg}/bin/*
+              ${pkg.serverPkg}/bin/*
             ${pkg.python}/bin/python "$tmp"/server.py
           '';
 

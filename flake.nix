@@ -133,8 +133,8 @@
                 --no-preserve=mode \
                 --symbolic-link \
                 ${pkg.vu-server}/bin/* .
-              ln -s "$STATE_DIRECTORY"/vudials.db .
-              ln -s /etc/vu-server/config.yaml .
+              ln --symbolic --force "$STATE_DIRECTORY"/vudials.db .
+              ln --symbolic --force /etc/vu-server/config.yaml .
               ${pkg.python}/bin/python server.py
             '';
 

@@ -80,7 +80,7 @@
               cp --recursive \
                 --no-preserve=mode \
                 --no-clobber \
-                "${pkg.vu-server}/bin" .
+                ${pkg.vu-server}/bin/* .
               ${pkg.python}/bin/python server.py
             '';
 

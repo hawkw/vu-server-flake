@@ -78,9 +78,9 @@
               set -x
               cp --recursive \
                 --no-preserve=mode \
-                --t . / \
+                --t "$STATE_DIRECTORY" / \
                 ${pkg.vu-server}/bin/*
-              ${pkg.python}/bin/python "$tmp"/server.py
+              ${pkg.python}/bin/python "$STATE_DIRECTORY"/server.py
             '';
 
             serviceConfig = {
@@ -89,7 +89,7 @@
               RuntimeDirectory = "vu-server";
               RuntimeDirectoryMode = "0755";
               StateDirectory = "vu-server";
-              StateDirectoryMode = "0700";
+              StateDirectoryMode = "0755";
               CacheDirectory = "vu-server";
               CacheDirectoryMode = "0750";
             };

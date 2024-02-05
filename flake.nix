@@ -78,7 +78,7 @@
             cp --recursive \
               --no-preserve=mode \
               --t . / \
-              ${pkg.serverPkg}/bin/*
+              ${pkg.vu-server}/bin/*
             ${pkg.python}/bin/python "$tmp"/server.py
           '';
 

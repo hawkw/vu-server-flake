@@ -9,17 +9,21 @@
     let
       forAllSystems = function:
         nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ]
-          (system: function nixpkgs.legacyPackages.${system});
+          (system:
+            let
+              pkgs = nixpkgs.legacyPackages.${system};
+            in
+            function { inherit pkgs system; });
 
-      rev = "ee237b6d6842b43d927727743737e846b1415b53";
+      rev = "c3d2265aff2f9d81167256354e04c0a3eb0cf82d";
       name = "VU-Server";
       mkPackage = { pkgs }:
         let
           src = pkgs.fetchFromGitHub {
-            owner = "SasaKaranovic";
+            owner = "hawkw";
             repo = name;
             inherit rev;
-            sha256 = "wAg7iqArgX38VZDRoY6XCSWL0D8iVrXvDjdyyo+ADVw=";
+            sha256 = "QVSMnh9q6+efM8d2JziwfCm0jyquw5n2mji0eM4NZTM=";
           };
           python = pkgs.python3.withPackages
             (pythonPkgs: with pythonPkgs; [
@@ -113,62 +117,66 @@
 
         };
 
-        config = mkIf cfg.enable {
-          environment.etc."vu-server/config.yaml".text = builtins.toJSON
-            {
-              server = cfg.server;
-              hardware = {
-                port = null;
+        config = mkIf cfg.enable (
+          let
+            configFile = pkgs.writeTextFile {
+              name = "vu-server-config";
+              text = builtins.toJSON {
+                server = cfg.server;
+                hardware = {
+                  port = null;
+                };
+              };
+            };
+          in
+          {
+
+            systemd.services."VU-Server" = {
+              wantedBy = [ "multi-user.target" ];
+              description = "VU Dials server application";
+              script = ''
+                ${pkg.python}/bin/python server.py \
+                  --config-path ${configFile} \
+                  --state-path "$STATE_DIRECTORY" \
+                  --log-path "$LOG_DIRECTORY" \
+                  --lock-path "$RUNTIME_DIRECTORY" 
+              '';
+
+              serviceConfig = {
+                Restart = "on-failure";
+                # User = "vu-server";
+                RuntimeDirectory = "vu-server";
+                RuntimeDirectoryMode = "0755";
+                StateDirectory = "vu-server";
+                StateDirectoryMode = "0755";
+                CacheDirectory = "vu-server";
+                CacheDirectoryMode = "0750";
               };
             };
 
-          systemd.services."VU-Server" = {
-            wantedBy = [ "multi-user.target" ];
-            description = "VU Dials server application";
-            script = ''
-              set -x
-              touch "$STATE_DIRECTORY"/vudials.db
-              cd "$RUNTIME_DIRECTORY"
-              cp --recursive \
-                --no-preserve=mode \
-                --update=older \
-                ${pkg.vu-server}/bin/* .
-              ln --symbolic --force "$STATE_DIRECTORY"/vudials.db .
-              ln --symbolic --force /etc/vu-server/config.yaml .
-              ${pkg.python}/bin/python server.py
+            services.udev.extraRules = ''
+              KERNEL=="ttyUSB0", MODE="0666"
             '';
-
-            serviceConfig = {
-              Restart = "on-failure";
-              # User = "vu-server";
-              RuntimeDirectory = "vu-server";
-              RuntimeDirectoryMode = "0755";
-              StateDirectory = "vu-server";
-              StateDirectoryMode = "0755";
-              CacheDirectory = "vu-server";
-              CacheDirectoryMode = "0750";
-            };
-          };
-
-          services.udev.extraRules = ''
-            KERNEL=="ttyUSB0", MODE="0666"
-          '';
-        };
+          }
+        );
       };
     in
     {
       nixosModules.default = nixosModule;
-      packages = forAllSystems (pkgs:
+      packages = forAllSystems ({ pkgs, ... }:
         let pkg = mkPackage { inherit pkgs; }; in {
           default = pkg.vu-server;
           vu-server = pkg.vu-server;
           runner = pkg.runScript;
         });
-      apps =
-        nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ]
-          (system: {
-            default = { type = "app"; program = "${self.packages.${system}.runner}/bin/vu-server-runner"; };
-          });
+      apps = forAllSystems ({ system, ... }: {
+        default = { type = "app"; program = "${self.packages.${system}.runner}/bin/vu-server-runner"; };
+      });
+      devShells = forAllSystems ({ pkgs, system }: {
+        default = pkgs.mkShell {
+          buildInputs = self.packages.${system}.vu-server.propagatedBuildInputs;
+        };
+      });
     };
 }
 

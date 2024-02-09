@@ -15,7 +15,7 @@
             in
             function { inherit pkgs system; });
 
-      rev = "3c724450e611f31c23660ae763cb80868c6a4285";
+      rev = "4f838bb8d3122b7822b1f96f3391c396ccb5c7fa";
       name = "VU-Server";
       mkPackage = { pkgs }:
         let
@@ -23,7 +23,7 @@
             owner = "hawkw";
             repo = name;
             inherit rev;
-            sha256 = "wgfiqaXKPDQ7SuyUzmRmqBqlRDsIuIhmnihsd6KzuCY=";
+            sha256 = "OI2v8nLkjg0mO9ytAPKVDuKFmxWAhNaI2k8r3uwcLTc=";
           };
           python = pkgs.python3.withPackages
             (pythonPkgs: with pythonPkgs; [

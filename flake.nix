@@ -80,6 +80,12 @@
       {
         options.services.vu-dials.server = {
           enable = mkEnableOption "Streacom VU-1 Dials HTTP server";
+          logLevel = mkOption {
+            type = with types; enum [ "debug" "info" "warning" "error" "critical" ];
+            default = "info";
+            example = "info";
+            description = "The log level for the VU-Server";
+          };
           server = mkOption
             {
               description = "Configuration for the VU-Server HTTP server.";
@@ -145,6 +151,7 @@
               script = ''
                 set -x
                 ${pkg.python}/bin/python ${pkg.vu-server}/bin/server.py \
+                  --logging ${cfg.logLevel} \
                   --config-path ${configFile} \
                   --state-path "$STATE_DIRECTORY" \
                   --log-path "$RUNTIME_DIRECTORY/server.log" \

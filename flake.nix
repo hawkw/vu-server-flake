@@ -52,11 +52,12 @@
 
               text = ''
                 set -x
-                cp --recursive \
-                  --no-preserve=mode \
-                  --target-directory="$tmp"/ \
-                  ${serverPkg}/bin/*
-                  python "$tmp"/server.py
+                STATE=''${XDG_STATE_HOME:-$HOME/.local/state}
+                python ${serverPkg}/bin/server.py \
+                  --state-path "$STATE/vu-server" \
+                  --log-path "$STATE/log" \
+                  --lock-path "''${XDG_RUNTIME_DIR:-/tmp}" \
+                  "$@"
               '';
             };
         in
@@ -64,14 +65,21 @@
           inherit python runScript;
           vu-server = serverPkg;
         };
-
-      nixosModule = { config, lib, pkgs, ... }: with lib; let
-        cfg = config.services.vu-server;
+    in
+    {
+      nixosModules.default = { config, lib, pkgs, ... }: with lib; let
+        cfg = config.services.vu-dials.server;
         pkg = mkPackage { inherit pkgs; };
+        defaultPort = 5340;
+        defaultTimeoutSecs = 30;
+        defaultPeriodMs = 200;
+        defaultMasterKey = "cTpAWYuRpA2zx75Yh961Cg";
+        dirname = "vu-server";
+
       in
       {
-        options.services.vu-server = {
-          enable = mkEnableOption "VU-Server systemd service";
+        options.services.vu-dials.server = {
+          enable = mkEnableOption "Streacom VU-1 Dials HTTP server";
           server = mkOption
             {
               description = "Configuration for the VU-Server HTTP server.";
@@ -87,28 +95,28 @@
                   port = mkOption
                     {
                       type = port;
-                      default = 5340;
-                      example = 5340;
+                      default = defaultPort;
+                      example = defaultPort;
                     };
                   communication_timeout = mkOption
                     {
                       type = int;
-                      default = 5000;
-                      example = 5000;
-                      description = "The timeout for communication with the VU dials, in milliseconds.";
+                      default = defaultTimeoutSecs;
+                      example = defaultTimeoutSecs;
+                      description = "The timeout for communication with the VU dials, in seconds.";
                     };
                   dial_update_period = mkOption
                     {
                       type = int;
-                      default = 200;
-                      example = 200;
+                      default = defaultPeriodMs;
+                      example = defaultPeriodMs;
                       description = "The period between dial updates, in milliseconds.";
                     };
                   master_key = mkOption
                     {
                       type = str;
-                      default = "cTpAWYuRpA2zx75Yh961Cg";
-                      example = "cTpAWYuRpA2zx75Yh961Cg";
+                      default = defaultMasterKey;
+                      example = defaultMasterKey;
                       description = "The master API key";
                     };
                 };
@@ -133,23 +141,23 @@
 
             systemd.services."VU-Server" = {
               wantedBy = [ "multi-user.target" ];
-              description = "VU Dials server application";
+              description = "Streacom VU-1 dials HTTP server";
               script = ''
-                ${pkg.python}/bin/python server.py \
+                ${pkg.python}/bin/python ${pkg}/bin/server.py \
                   --config-path ${configFile} \
                   --state-path "$STATE_DIRECTORY" \
                   --log-path "$LOG_DIRECTORY" \
-                  --lock-path "$RUNTIME_DIRECTORY" 
+                  --lock-path "$RUNTIME_DIRECTORY"
               '';
 
               serviceConfig = {
                 Restart = "on-failure";
-                # User = "vu-server";
-                RuntimeDirectory = "vu-server";
+                DynamicUser = "yes";
+                RuntimeDirectory = dirname;
                 RuntimeDirectoryMode = "0755";
-                StateDirectory = "vu-server";
+                StateDirectory = dirname;
                 StateDirectoryMode = "0755";
-                CacheDirectory = "vu-server";
+                CacheDirectory = dirname;
                 CacheDirectoryMode = "0750";
               };
             };
@@ -160,9 +168,7 @@
           }
         );
       };
-    in
-    {
-      nixosModules.default = nixosModule;
+
       packages = forAllSystems ({ pkgs, ... }:
         let pkg = mkPackage { inherit pkgs; }; in {
           default = pkg.vu-server;

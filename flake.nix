@@ -143,7 +143,7 @@
               wantedBy = [ "multi-user.target" ];
               description = "Streacom VU-1 dials HTTP server";
               script = ''
-                ${pkg.python}/bin/python ${pkg}/bin/server.py \
+                ${pkg.python}/bin/python ${pkg.vu-server}/bin/server.py \
                   --config-path ${configFile} \
                   --state-path "$STATE_DIRECTORY" \
                   --log-path "$LOG_DIRECTORY" \

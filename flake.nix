@@ -15,7 +15,7 @@
             in
             function { inherit pkgs system; });
 
-      rev = "c3d2265aff2f9d81167256354e04c0a3eb0cf82d";
+      rev = "3c724450e611f31c23660ae763cb80868c6a4285";
       name = "VU-Server";
       mkPackage = { pkgs }:
         let
@@ -23,7 +23,7 @@
             owner = "hawkw";
             repo = name;
             inherit rev;
-            sha256 = "QVSMnh9q6+efM8d2JziwfCm0jyquw5n2mji0eM4NZTM=";
+            sha256 = "wgfiqaXKPDQ7SuyUzmRmqBqlRDsIuIhmnihsd6KzuCY=";
           };
           python = pkgs.python3.withPackages
             (pythonPkgs: with pythonPkgs; [
@@ -143,6 +143,7 @@
               wantedBy = [ "multi-user.target" ];
               description = "Streacom VU-1 dials HTTP server";
               script = ''
+                set -x
                 ${pkg.python}/bin/python ${pkg.vu-server}/bin/server.py \
                   --config-path ${configFile} \
                   --state-path "$STATE_DIRECTORY" \

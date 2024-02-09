@@ -147,7 +147,7 @@
                 ${pkg.python}/bin/python ${pkg.vu-server}/bin/server.py \
                   --config-path ${configFile} \
                   --state-path "$STATE_DIRECTORY" \
-                  --log-path "$RUNTIME_DIRECTORY" \
+                  --log-path "$RUNTIME_DIRECTORY/server.log" \
                   --lock-path "$RUNTIME_DIRECTORY"
               '';
 

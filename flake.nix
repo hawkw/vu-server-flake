@@ -76,6 +76,8 @@
         defaultMasterKey = "cTpAWYuRpA2zx75Yh961Cg";
         dirname = "vu-server";
 
+        configFormat = pkgs.formats.yaml { };
+
       in
       {
         options.services.vu-dials.server = {
@@ -133,18 +135,15 @@
 
         config = mkIf cfg.enable (
           let
-            configFile = pkgs.writeTextFile {
-              name = "vu-server-config";
-              text = builtins.toJSON {
-                server = cfg.server;
-                hardware = {
-                  port = null;
-                };
+            configFile = configFormat.generate "${dirname}.yaml" {
+              server = cfg.server;
+              hardware = {
+                port = null;
               };
             };
           in
           {
-
+            environment.etc."${dirname}.yaml".source = configFile;
             systemd.services."VU-Server" = {
               wantedBy = [ "multi-user.target" ];
               description = "Streacom VU-1 dials HTTP server";
@@ -152,7 +151,7 @@
                 set -x
                 ${pkg.python}/bin/python ${pkg.vu-server}/bin/server.py \
                   --logging ${cfg.logLevel} \
-                  --config-path ${configFile} \
+                  --config-path /etc/${dirname}.toml \
                   --state-path "$STATE_DIRECTORY" \
                   --log-path "$RUNTIME_DIRECTORY/server.log" \
                   --lock-path "$RUNTIME_DIRECTORY"

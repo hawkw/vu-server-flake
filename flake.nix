@@ -151,7 +151,7 @@
                 set -x
                 ${pkg.python}/bin/python ${pkg.vu-server}/bin/server.py \
                   --logging ${cfg.logLevel} \
-                  --config-path /etc/${dirname}.toml \
+                  --config-path /etc/${dirname}.yaml \
                   --state-path "$STATE_DIRECTORY" \
                   --log-path "$RUNTIME_DIRECTORY/server.log" \
                   --lock-path "$RUNTIME_DIRECTORY"
@@ -159,7 +159,7 @@
 
               serviceConfig = {
                 Restart = "on-failure";
-                DynamicUser = "yes";
+                DynamicUser = true;
                 RuntimeDirectory = dirname;
                 RuntimeDirectoryMode = "0755";
                 StateDirectory = dirname;

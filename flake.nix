@@ -15,7 +15,7 @@
             in
             function { inherit pkgs system; });
 
-      rev = "ee237b6d6842b43d927727743737e846b1415b53";
+      rev = "d77ac315eac151eeca6cd2f5d978821a13aea4d6";
       name = "VU-Server";
       mkPackage = { pkgs }:
         let
@@ -23,7 +23,7 @@
             owner = "SasaKaranovic";
             repo = name;
             inherit rev;
-            sha256 = "wAg7iqArgX38VZDRoY6XCSWL0D8iVrXvDjdyyo+ADVw=";
+            sha256 = "e8yGvz2NPtpmh7bN/u5qZ8oH+TPO2K9js1ej9Is/Wyc=";
           };
           python = pkgs.python3.withPackages
             (pythonPkgs: with pythonPkgs; [
@@ -153,7 +153,7 @@
               script = ''
                 set -x
                 touch "$STATE_DIRECTORY"/vudials.db
-                
+
                 cd "$RUNTIME_DIRECTORY"
                 cp --recursive \
                   --no-preserve=mode \

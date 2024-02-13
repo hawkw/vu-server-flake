@@ -15,15 +15,15 @@
             in
             function { inherit pkgs system; });
 
-      rev = "4f838bb8d3122b7822b1f96f3391c396ccb5c7fa";
+      rev = "ee237b6d6842b43d927727743737e846b1415b53";
       name = "VU-Server";
       mkPackage = { pkgs }:
         let
           src = pkgs.fetchFromGitHub {
-            owner = "hawkw";
+            owner = "SasaKaranovic";
             repo = name;
             inherit rev;
-            sha256 = "OI2v8nLkjg0mO9ytAPKVDuKFmxWAhNaI2k8r3uwcLTc=";
+            sha256 = "wAg7iqArgX38VZDRoY6XCSWL0D8iVrXvDjdyyo+ADVw=";
           };
           python = pkgs.python3.withPackages
             (pythonPkgs: with pythonPkgs; [
@@ -53,11 +53,14 @@
               text = ''
                 set -x
                 STATE=''${XDG_STATE_HOME:-$HOME/.local/state}
-                python ${serverPkg}/bin/server.py \
-                  --state-path "$STATE/vu-server" \
-                  --log-path "$STATE/log" \
-                  --lock-path "''${XDG_RUNTIME_DIR:-/tmp}" \
-                  "$@"
+                mkdir -p $STATE/vu-server
+                touch $STATE/vu-server/vudials.db
+                ln -s $STATE/vu-server/vudials.db .
+                cp --recursive \
+                  --no-preserve=mode \
+                  --target-directory="$tmp"/ \
+                  ${serverPkg}/bin/*
+                python "$tmp"/server.py
               '';
             };
         in
@@ -149,12 +152,18 @@
               description = "Streacom VU-1 dials HTTP server";
               script = ''
                 set -x
-                ${pkg.python}/bin/python ${pkg.vu-server}/bin/server.py \
-                  --logging ${cfg.logLevel} \
-                  --config-path /etc/${dirname}.yaml \
-                  --state-path "$STATE_DIRECTORY" \
-                  --log-path "$RUNTIME_DIRECTORY/server.log" \
-                  --lock-path "$RUNTIME_DIRECTORY"
+                touch "$STATE_DIRECTORY"/vudials.db
+                
+                cd "$RUNTIME_DIRECTORY"
+                cp --recursive \
+                  --no-preserve=mode \
+                  --update=older \
+                  ${pkg.vu-server}/bin/* .
+                ln --symbolic --force "$STATE_DIRECTORY"/vudials.db .
+                ln --symbolic --force /etc/${dirname}.yaml ./config.yaml
+
+                ${pkg.python}/bin/python server.py \
+                  --logging ${cfg.logLevel}
               '';
 
               serviceConfig = {
@@ -171,6 +180,7 @@
 
             services.udev.extraRules = ''
               KERNEL=="ttyUSB0", MODE="0666"
+              KERNEL=="ttyUSB1", MODE="0666"
             '';
           }
         );

@@ -169,6 +169,7 @@
               serviceConfig = {
                 Restart = "on-failure";
                 DynamicUser = false;
+                ProtectHome = false;
                 RuntimeDirectory = dirname;
                 RuntimeDirectoryMode = "0755";
                 StateDirectory = dirname;

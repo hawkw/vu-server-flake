@@ -4,13 +4,13 @@ This repository contains a Nix flake packaging [VU-Server], the host software fo
 
 ## usage as a flake
 
-[![FlakeHub](https://img.shields.io/endpoint?url=https://flakehub.com/f/hawkw/vu-server/badge)](https://flakehub.com/flake/hawkw/vu-server)
+[![FlakeHub](https://img.shields.io/endpoint?url=https://flakehub.com/f/mycoliza/vu-server/badge)](https://flakehub.com/flake/mycoliza/vu-server)
 
 Add vu-server-flake to your `flake.nix`:
 
 ```nix
 {
-  inputs.vu-server.url = "https://flakehub.com/f/hawkw/vu-server/*.tar.gz";
+  inputs.vu-server.url = "https://flakehub.com/f/mycoliza/vu-server/*.tar.gz";
 
   outputs = { self, vu-server }: {
     # Use in your outputs

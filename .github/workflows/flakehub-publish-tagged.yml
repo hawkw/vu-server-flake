@@ -23,5 +23,5 @@ jobs:
       - uses: "DeterminateSystems/flakehub-push@main"
         with:
           visibility: "public"
-          name: "hawkw/VU-Server"
+          name: "mycoliza/VU-Server"
           tag: "${{ inputs.tag }}"
